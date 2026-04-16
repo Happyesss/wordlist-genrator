@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WiFi Wordlist Generator</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <p class="eyebrow">Security Toolkit</p>
+      <h1>WiFi Password Wordlist Generator</h1>
+      <p>Generate realistic candidate lists from target metadata with live progress, advanced controls, and high-volume output support.</p>
+      <div class="hero-meta">
+        <span class="chip">Authorized Assessment Use</span>
+        <span class="chip">Hard Cap: 1,000,000</span>
+        <span class="chip">Worker Streaming Enabled</span>
+      </div>
+    </header>
+
+    <section class="dashboard">
+      <section class="panel panel-form">
+        <h2>Target Profile</h2>
+        <form id="generator-form">
+          <div class="form-grid">
+            <label>
+              Owner / Primary names
+              <input type="text" id="ownerNames" placeholder="owner1, owner2" value="" />
+            </label>
+
+            <label>
+              Last names
+              <input type="text" id="lastNames" placeholder="lastname1, lastname2" value="" />
+            </label>
+
+            <label>
+              Family member names
+              <input type="text" id="familyNames" placeholder="family1, family2" value="" />
+            </label>
+
+            <label>
+              Pet names / animal names
+              <input type="text" id="petNames" placeholder="pet1, pet2" value="" />
+            </label>
+
+            <label>
+              Phone numbers
+              <input type="text" id="phoneNumbers" placeholder="9000011111, 9888877777" value="" />
+            </label>
+
+            <label>
+              Location / city
+              <input type="text" id="location" placeholder="city, country" value="" />
+            </label>
+
+            <label>
+              Interests / keywords
+              <input type="text" id="interests" placeholder="gaming, travel, sports" value="" />
+            </label>
+
+            <label>
+              Exact DOB(s) (optional)
+              <input type="text" id="exactDob" placeholder="2001-01-30, 30011999, 30/01/2001" value="" />
+            </label>
+          </div>
+
+          <label>
+            Desired wordlist size
+            <input type="number" id="listSize" min="100" max="1000000" value="2500" />
+            <small class="field-note">Hard limit: 1,000,000 passwords.</small>
+          </label>
+
+          <div class="toggles">
+            <label class="checkbox-label">
+              <input type="checkbox" id="includeRouterDefaults" checked />
+              Include router / ISP default-style passwords
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="includeYears" checked />
+              Include birth-year combos (1900-2100)
+            </label>
+
+            <label class="checkbox-label">
+              <input type="checkbox" id="includeRandomNumbers" checked />
+              Add random numeric suffix patterns
+            </label>
+
+            <label>
+              Random numeric count
+              <input type="number" id="randomCount" min="0" max="200" value="24" />
+              <small class="field-note">Used only when random suffix option is enabled.</small>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button type="button" id="generateBtn">Generate Wordlist</button>
+            <button type="button" id="cancelBtn" disabled>Cancel</button>
+            <button type="button" id="downloadBtn" disabled>Download .txt</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="output-head">
+          <div>
+            <h2>Generated passwords</h2>
+            <p class="note">Output is clipped by your requested size, available unique candidates, and hard-limit rules.</p>
+          </div>
+          <div class="output-actions">
+            <button type="button" id="outputDownloadBtn" disabled>Download .txt</button>
+          </div>
+        </div>
+        <div id="warnings" class="warnings" aria-live="polite"></div>
+        <textarea id="output" readonly placeholder="Generated passwords will appear here..."></textarea>
+        <div class="stats" id="stats"></div>
+      </section>
+    </section>
+
+    <footer class="site-footer">
+      Licensed under the Apache License, Version 2.0.
+    </footer>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
