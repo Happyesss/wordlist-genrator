@@ -105,6 +105,27 @@ npx serve .
 
 Open the URL shown by serve.
 
+## Offline Terminal CLI (Kali)
+
+You can install a global command directly from the repo link and run it like Cupp.
+
+Install with repo link:
+
+pipx install "git+https://github.com/Happyesss/wordlist-genrator.git"
+
+Run interactive mode:
+
+wordlist-cli -i
+
+Show complete help:
+
+wordlist-cli -help
+
+Notes:
+
+- If `pipx` is missing: `sudo apt update && sudo apt install -y pipx`
+- Then run `pipx ensurepath` and restart terminal.
+
 ## Usage Flow
 
 1. Enter known target details.

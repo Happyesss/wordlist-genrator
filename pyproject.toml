@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wordlist-cli"
+version = "1.1.0"
+description = "Offline WiFi wordlist generator with interactive terminal mode"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "wordlist-cli contributors" }
+]
+keywords = ["security", "wordlist", "kali", "cli", "wifi"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Environment :: Console"
+]
+
+[project.scripts]
+wordlist-cli = "wordlist_cli:main"
+
+[tool.setuptools]
+py-modules = ["wordlist_cli"]
