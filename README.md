@@ -29,6 +29,16 @@ Use this tool only on networks and assets you are authorized to test. Unauthoriz
   - Main form action area
   - Generated-password output area
 
+## Screenshots
+
+Web UI:
+
+![Web UI](assets/web.png)
+
+CLI UI:
+
+![CLI UI](assets/cli.png)
+
 ## Project Structure
 
 - index.html: Main page layout and controls.
@@ -157,6 +167,10 @@ Notes:
   - Candidate space may be smaller than requested size.
 - Requested value clipped:
   - Value exceeded hard limit or available unique candidates.
+- CLI layout looks messy in a small terminal:
+  - Increase terminal width when possible.
+  - The CLI now auto-switches to a compact header on narrow terminals.
+  - Use `--quiet` for minimal output in very small terminal windows.
 
 ## Security and Privacy Notes
 

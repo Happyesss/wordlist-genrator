@@ -319,6 +319,7 @@ def generate_wordlist(config: Dict[str, object], quiet: bool) -> Dict[str, objec
 
 
 def print_header() -> None:
+    term_width = console.size.width
     logo = r"""
  _       __               ____    _      __ 
 | |     / /___  ________/ / /_  (_)____/ /_ 
@@ -332,6 +333,31 @@ def print_header() -> None:
 / /_/ / /_/ / / / /  __/ /  / /_/ / /_/  __/ /    
 \____/\____/_/ /_/\___/_/   \__,_/\__/\___/_/     
 """
+
+    # Large ASCII logo is used on wide terminals only; narrow terminals get a compact header.
+    if term_width < 110:
+        title = Text("WORDLIST-GENRATOR", style="bold bright_cyan")
+        body = Text.assemble(
+            title,
+            "\n",
+            ("Offline WiFi Wordlist Generator", "white"),
+            "\n",
+            ("Authorized security testing use only", "dim"),
+        )
+        console.print()
+        console.print(
+            Panel(
+                body,
+                border_style="cyan",
+                padding=(0, 1),
+                subtitle="v1.2.0",
+                subtitle_align="right",
+                title="terminal mode",
+                title_align="left",
+            )
+        )
+        return
+
     title = Text(logo.strip("\n"), style="bold bright_cyan")
     subtitle = Text("Offline WiFi Wordlist Generator", style="white")
     body = Text.assemble(title, "\n\n", subtitle, "\n", ("Authorized security testing use only", "dim"))
@@ -392,7 +418,7 @@ def prompt_int(label: str, default: int, minimum: int | None = None, maximum: in
 def show_runtime_config(config: Dict[str, object]) -> None:
     table = Table(show_header=True, header_style="bold cyan", box=None)
     table.add_column("Key", style="cyan", no_wrap=True)
-    table.add_column("Value", style="white")
+    table.add_column("Value", style="white", overflow="fold")
 
     for key, value in config.items():
         if key in {"output", "preview", "stdout", "show_config", "quiet"}:
@@ -526,7 +552,7 @@ Notes:
 def print_summary(result: Dict[str, object], output_path: Path) -> None:
     summary = Table(box=None, show_header=False)
     summary.add_column("k", style="cyan", no_wrap=True)
-    summary.add_column("v", style="white")
+    summary.add_column("v", style="white", overflow="fold")
     summary.add_row("Output file", str(output_path))
     summary.add_row("Generated count", str(result["generated_count"]))
     summary.add_row("Requested size", f"{result['requested_size']} (raw: {result['requested_raw']})")
@@ -550,7 +576,7 @@ def print_preview(passwords: Sequence[str], preview_count: int) -> None:
 
     table = Table(title="preview", header_style="bold cyan")
     table.add_column("#", style="dim", justify="right", width=5)
-    table.add_column("candidate", style="white")
+    table.add_column("candidate", style="white", overflow="fold")
 
     for idx, pwd in enumerate(passwords[:preview_count], start=1):
         table.add_row(str(idx), pwd)
