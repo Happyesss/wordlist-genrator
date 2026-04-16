@@ -126,7 +126,7 @@ pipx reinstall "git+https://github.com/Happyesss/wordlist-genrator.git"
 Quick update command (recommended):
 
 ```bash
-pipx upgrade --force wordlist-cli
+pipx install --force "git+https://github.com/Happyesss/wordlist-genrator.git@main"
 ```
 
 Show complete help:
