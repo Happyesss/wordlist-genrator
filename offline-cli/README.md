@@ -28,6 +28,18 @@ Then run from any terminal path:
 
 wordlist-cli -i
 
+To upgrade to latest CLI UI later:
+
+```bash
+pipx reinstall "git+https://github.com/Happyesss/wordlist-genrator.git"
+```
+
+Quick update command (recommended):
+
+```bash
+pipx upgrade --force wordlist-cli
+```
+
 If `pipx` is missing:
 
 sudo apt update && sudo apt install -y pipx

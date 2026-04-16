@@ -9,12 +9,19 @@ This module powers both:
 from __future__ import annotations
 
 import argparse
-import os
 import random
 import re
-import sys
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Set
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Confirm, IntPrompt, Prompt
+from rich.rule import Rule
+from rich.table import Table
+from rich.text import Text
+
+console = Console()
 
 HARD_LIMIT = 1_000_000
 MIN_LIMIT = 100
@@ -45,26 +52,6 @@ DEFAULT_PHONE_PATTERNS = [
     "9810012345", "9811122334", "9812345678", "9912345678",
     "9812301234", "9812340000", "9810012346", "9810012347"
 ]
-
-
-class C:
-    RESET = "\033[0m"
-    BOLD = "\033[1m"
-    DIM = "\033[2m"
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    CYAN = "\033[36m"
-
-
-def supports_color() -> bool:
-    return sys.stdout.isatty() and "NO_COLOR" not in os.environ
-
-
-def colorize(text: str, style: str) -> str:
-    if not supports_color():
-        return text
-    return f"{style}{text}{C.RESET}"
 
 
 def unique(items: Iterable[str]) -> List[str]:
@@ -204,7 +191,7 @@ def build_random_suffixes(count: int, seed: int | None) -> List[str]:
 def stage(msg: str, quiet: bool) -> None:
     if quiet:
         return
-    print(colorize(f"[+] {msg}", C.CYAN))
+    console.print(f"[cyan]>>[/cyan] {msg}")
 
 
 def generate_wordlist(config: Dict[str, object], quiet: bool) -> Dict[str, object]:
@@ -332,63 +319,80 @@ def generate_wordlist(config: Dict[str, object], quiet: bool) -> Dict[str, objec
 
 
 def print_header() -> None:
-    line = "=" * 72
-    print(colorize(line, C.GREEN))
-    print(colorize("  OFFLINE WIFI WORDLIST GENERATOR - TERMINAL EDITION", C.BOLD + C.GREEN))
-    print(colorize("  Authorized security testing use only", C.DIM))
-    print(colorize(line, C.GREEN))
+    title = Text("WORDLIST-CLI", style="bold bright_cyan")
+    subtitle = Text("Offline WiFi Wordlist Generator", style="white")
+    body = Text.assemble(title, "\n", subtitle, "\n", ("Authorized security testing use only", "dim"))
+
+    console.print()
+    console.print(
+        Panel(
+            body,
+            border_style="cyan",
+            padding=(1, 2),
+            subtitle="v1.2.0",
+            subtitle_align="right",
+            title="terminal mode",
+            title_align="left",
+        )
+    )
 
 
 def print_interactive_banner() -> None:
-    print(colorize("\n+--------------------------------------------------------------+", C.GREEN))
-    print(colorize("| Interactive Mode (-i)                                        |", C.GREEN))
-    print(colorize("| Fill fields and press Enter (leave blank to skip).           |", C.GREEN))
-    print(colorize("+--------------------------------------------------------------+", C.GREEN))
+    help_lines = (
+        "- Press Enter to keep default\n"
+        "- Leave text blank to skip a field\n"
+        "- Comma-separate multi values (alex,rohan,home)\n"
+        "- Type Ctrl+C to cancel"
+    )
+    console.print(
+        Panel(
+            help_lines,
+            title="interactive wizard (-i)",
+            border_style="bright_blue",
+            padding=(1, 2),
+        )
+    )
 
 
 def prompt_text(label: str, default: str = "") -> str:
     if default:
-        value = input(f"{label} [{default}]: ").strip()
-        return value if value else default
-    return input(f"{label}: ").strip()
+        return Prompt.ask(label, default=default).strip()
+    return Prompt.ask(label, default="").strip()
 
 
 def prompt_yes_no(label: str, default: bool) -> bool:
-    suffix = "Y/n" if default else "y/N"
-    while True:
-        raw = input(f"{label} [{suffix}]: ").strip().lower()
-        if not raw:
-            return default
-        if raw in {"y", "yes"}:
-            return True
-        if raw in {"n", "no"}:
-            return False
-        print(colorize("Please type y or n.", C.YELLOW))
+    return Confirm.ask(label, default=default)
 
 
 def prompt_int(label: str, default: int, minimum: int | None = None, maximum: int | None = None) -> int:
     while True:
-        raw = input(f"{label} [{default}]: ").strip()
-        if not raw:
-            value = default
-        else:
-            try:
-                value = int(raw)
-            except ValueError:
-                print(colorize("Please enter a valid number.", C.YELLOW))
-                continue
-
+        value = IntPrompt.ask(label, default=default)
         if minimum is not None and value < minimum:
-            print(colorize(f"Minimum value is {minimum}.", C.YELLOW))
+            console.print(f"[yellow]Minimum value is {minimum}.[/yellow]")
             continue
         if maximum is not None and value > maximum:
-            print(colorize(f"Maximum value is {maximum}.", C.YELLOW))
+            console.print(f"[yellow]Maximum value is {maximum}.[/yellow]")
             continue
         return value
 
 
+def show_runtime_config(config: Dict[str, object]) -> None:
+    table = Table(show_header=True, header_style="bold cyan", box=None)
+    table.add_column("Key", style="cyan", no_wrap=True)
+    table.add_column("Value", style="white")
+
+    for key, value in config.items():
+        if key in {"output", "preview", "stdout", "show_config", "quiet"}:
+            continue
+        table.add_row(key, str(value))
+
+    console.print(Rule("resolved config", style="cyan"))
+    console.print(table)
+
+
 def build_interactive_config(args: argparse.Namespace) -> Dict[str, object]:
     print_interactive_banner()
+    console.print(Rule("profile", style="bright_blue"))
 
     owners = prompt_text("Owner names (comma-separated)", args.owners)
     last_names = prompt_text("Last names", args.last_names)
@@ -399,21 +403,22 @@ def build_interactive_config(args: argparse.Namespace) -> Dict[str, object]:
     interests = prompt_text("Interests", args.interests)
     dob = prompt_text("Exact DOB tokens", args.dob)
 
+    console.print(Rule("generation rules", style="bright_blue"))
     size = prompt_int("Desired wordlist size", args.size, MIN_LIMIT, HARD_LIMIT)
     include_random = prompt_yes_no("Include random numeric suffixes", args.include_random)
     random_count = prompt_int("Random numeric count", args.random_count, 0, 200)
     include_years = prompt_yes_no("Include year combinations (1900-2100)", args.include_years)
     include_router_defaults = prompt_yes_no("Include router default patterns", args.include_router_defaults)
 
+    console.print(Rule("output", style="bright_blue"))
     output_default = args.output if args.output else "wordlist.txt"
     output = prompt_text("Output file path", output_default)
-
     quiet = prompt_yes_no("Quiet mode", args.quiet)
     stdout = prompt_yes_no("Print full list to terminal", args.stdout)
     show_config = prompt_yes_no("Show resolved config", args.show_config)
     preview = prompt_int("Preview first N passwords", args.preview, 0, 200)
 
-    return {
+    config = {
         "owners": owners,
         "last_names": last_names,
         "family": family,
@@ -434,6 +439,13 @@ def build_interactive_config(args: argparse.Namespace) -> Dict[str, object]:
         "show_config": show_config,
         "quiet": quiet,
     }
+
+    if not quiet:
+        show_runtime_config(config)
+        if not Confirm.ask("Start generation now", default=True):
+            raise KeyboardInterrupt
+
+    return config
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -461,7 +473,7 @@ Notes:
     )
 
     parser.add_argument("-h", "--help", "-help", action="help", help="Show this complete help message and exit.")
-    parser.add_argument("--version", action="version", version="wordlist-cli 1.1.0")
+    parser.add_argument("--version", action="version", version="wordlist-cli 1.2.0")
     parser.add_argument("-i", "--interactive", action="store_true", help="Launch Cupp-style interactive wizard UI.")
 
     profile = parser.add_argument_group("Target Profile Inputs")
@@ -499,20 +511,38 @@ Notes:
 
 
 def print_summary(result: Dict[str, object], output_path: Path) -> None:
-    print(colorize("\nGeneration Summary", C.BOLD + C.CYAN))
-    print(f"  Output file      : {output_path}")
-    print(f"  Generated count  : {result['generated_count']}")
-    print(f"  Requested size   : {result['requested_size']} (raw: {result['requested_raw']})")
-    print(f"  Unique available : {result['total_unique']}")
-    print(f"  Hard limit       : {result['hard_limit']}")
-    print(f"  Clipped by limit : {str(result['clipped_by_limit']).lower()}")
-    print(f"  Clipped by uniq  : {str(result['clipped_by_candidates']).lower()}")
+    summary = Table(box=None, show_header=False)
+    summary.add_column("k", style="cyan", no_wrap=True)
+    summary.add_column("v", style="white")
+    summary.add_row("Output file", str(output_path))
+    summary.add_row("Generated count", str(result["generated_count"]))
+    summary.add_row("Requested size", f"{result['requested_size']} (raw: {result['requested_raw']})")
+    summary.add_row("Unique available", str(result["total_unique"]))
+    summary.add_row("Hard limit", str(result["hard_limit"]))
+    summary.add_row("Clipped by limit", str(result["clipped_by_limit"]).lower())
+    summary.add_row("Clipped by unique", str(result["clipped_by_candidates"]).lower())
+
+    console.print(Rule("generation summary", style="cyan"))
+    console.print(summary)
 
     warnings = result.get("warnings", [])
     if warnings:
-        print(colorize("\nWarnings", C.BOLD + C.YELLOW))
-        for warning in warnings:
-            print(colorize(f"  - {warning}", C.YELLOW))
+        warning_text = "\n".join(f"- {warning}" for warning in warnings)
+        console.print(Panel(warning_text, title="warnings", border_style="yellow"))
+
+
+def print_preview(passwords: Sequence[str], preview_count: int) -> None:
+    if preview_count <= 0:
+        return
+
+    table = Table(title="preview", header_style="bold cyan")
+    table.add_column("#", style="dim", justify="right", width=5)
+    table.add_column("candidate", style="white")
+
+    for idx, pwd in enumerate(passwords[:preview_count], start=1):
+        table.add_row(str(idx), pwd)
+
+    console.print(table)
 
 
 def execute(config: Dict[str, object]) -> int:
@@ -522,13 +552,10 @@ def execute(config: Dict[str, object]) -> int:
         print_header()
 
     if config.get("show_config") and not quiet:
-        print(colorize("\nResolved Config", C.BOLD + C.CYAN))
-        for key, value in config.items():
-            if key in {"output", "preview", "stdout", "show_config", "quiet"}:
-                continue
-            print(f"  {key:24} {value}")
+        show_runtime_config(config)
 
-    result = generate_wordlist(config, quiet=quiet)
+    with console.status("[cyan]Generating wordlist...[/cyan]", spinner="dots") if not quiet else nullcontext():
+        result = generate_wordlist(config, quiet=quiet)
 
     output_path = Path(str(config["output"]))
     output_path = output_path.expanduser().resolve()
@@ -537,52 +564,62 @@ def execute(config: Dict[str, object]) -> int:
 
     if not quiet:
         print_summary(result, output_path)
-
         preview = clamp(int(config["preview"]), 0, 200)
-        if preview > 0:
-            print(colorize("\nPreview", C.BOLD + C.CYAN))
-            for idx, pwd in enumerate(result["passwords"][:preview], start=1):
-                print(f"  {idx:>3}. {pwd}")
-
-        print(colorize("\nDone.", C.BOLD + C.GREEN))
+        print_preview(result["passwords"], preview)
+        console.print("[bold green]Done.[/bold green]")
 
     if config.get("stdout"):
         for pwd in result["passwords"]:
-            print(pwd)
+            console.print(pwd)
 
     return 0
+
+
+def nullcontext():
+    class _NullContext:
+        def __enter__(self):
+            return None
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    return _NullContext()
 
 
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
-    if args.interactive:
-        config = build_interactive_config(args)
-        return execute(config)
+    try:
+        if args.interactive:
+            config = build_interactive_config(args)
+            return execute(config)
 
-    config: Dict[str, object] = {
-        "owners": args.owners,
-        "last_names": args.last_names,
-        "family": args.family,
-        "pets": args.pets,
-        "phones": args.phones,
-        "locations": args.locations,
-        "interests": args.interests,
-        "dob": args.dob,
-        "size": args.size,
-        "include_random": args.include_random,
-        "random_count": clamp(args.random_count, 0, 200),
-        "seed": args.seed,
-        "include_years": args.include_years,
-        "include_router_defaults": args.include_router_defaults,
-        "output": args.output,
-        "preview": args.preview,
-        "stdout": args.stdout,
-        "show_config": args.show_config,
-        "quiet": args.quiet,
-    }
-    return execute(config)
+        config: Dict[str, object] = {
+            "owners": args.owners,
+            "last_names": args.last_names,
+            "family": args.family,
+            "pets": args.pets,
+            "phones": args.phones,
+            "locations": args.locations,
+            "interests": args.interests,
+            "dob": args.dob,
+            "size": args.size,
+            "include_random": args.include_random,
+            "random_count": clamp(args.random_count, 0, 200),
+            "seed": args.seed,
+            "include_years": args.include_years,
+            "include_router_defaults": args.include_router_defaults,
+            "output": args.output,
+            "preview": args.preview,
+            "stdout": args.stdout,
+            "show_config": args.show_config,
+            "quiet": args.quiet,
+        }
+        return execute(config)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Cancelled by user.[/yellow]")
+        return 130
 
 
 if __name__ == "__main__":

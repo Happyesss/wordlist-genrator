@@ -117,6 +117,18 @@ Run interactive mode:
 
 wordlist-cli -i
 
+If already installed, upgrade to latest UI build:
+
+```bash
+pipx reinstall "git+https://github.com/Happyesss/wordlist-genrator.git"
+```
+
+Quick update command (recommended):
+
+```bash
+pipx upgrade --force wordlist-cli
+```
+
 Show complete help:
 
 wordlist-cli -help
