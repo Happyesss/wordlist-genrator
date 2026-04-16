@@ -560,10 +560,7 @@ def print_preview(passwords: Sequence[str], preview_count: int) -> None:
 
 def execute(config: Dict[str, object]) -> int:
     quiet = bool(config["quiet"])
-
-    if not quiet:
-        print_header()
-
+    
     if config.get("show_config") and not quiet:
         show_runtime_config(config)
 
@@ -602,6 +599,9 @@ def nullcontext():
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+
+    if not args.quiet:
+        print_header()
 
     try:
         if args.interactive:
