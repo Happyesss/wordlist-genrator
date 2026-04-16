@@ -319,9 +319,22 @@ def generate_wordlist(config: Dict[str, object], quiet: bool) -> Dict[str, objec
 
 
 def print_header() -> None:
-    title = Text("WORDLIST-CLI", style="bold bright_cyan")
+    logo = r"""
+ _       __               ____    _      __ 
+| |     / /___  ________/ / /_  (_)____/ /_ 
+| | /| / / __ \/ ___/ __  / / / / / ___/ __/
+| |/ |/ / /_/ / /  / /_/ / / /_/ (__  ) /_  
+|__/|__/\____/_/   \__,_/_/\____/____/\__/  
+                                            
+   ______                           __            
+  / ____/___  ____  ___  _________ / /_____  _____
+ / / __/ __ \/ __ \/ _ \/ ___/ __ `/ __/ _ \/ ___/
+/ /_/ / /_/ / / / /  __/ /  / /_/ / /_/  __/ /    
+\____/\____/_/ /_/\___/_/   \__,_/\__/\___/_/     
+"""
+    title = Text(logo.strip("\n"), style="bold bright_cyan")
     subtitle = Text("Offline WiFi Wordlist Generator", style="white")
-    body = Text.assemble(title, "\n", subtitle, "\n", ("Authorized security testing use only", "dim"))
+    body = Text.assemble(title, "\n\n", subtitle, "\n", ("Authorized security testing use only", "dim"))
 
     console.print()
     console.print(
