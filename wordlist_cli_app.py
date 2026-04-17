@@ -34,7 +34,9 @@ def print_header() -> None:
 \____/\____/_/ /_/\___/_/   \__,_/\__/\___/_/     
 """
 
-    if term_width < 110:
+    # Keep the full banner for most terminal sizes; use compact only when truly narrow.
+    if term_width < 90:
+        panel_width = max(38, min(74, term_width - 2))
         title = Text("WORDLIST-GENRATOR", style="bold bright_cyan")
         body = Text.assemble(
             title,
@@ -49,6 +51,8 @@ def print_header() -> None:
                 body,
                 border_style="cyan",
                 padding=(0, 1),
+                expand=False,
+                width=panel_width,
                 subtitle="v1.3.0",
                 subtitle_align="right",
                 title="terminal mode",
@@ -57,6 +61,7 @@ def print_header() -> None:
         )
         return
 
+    panel_width = max(64, min(98, term_width - 2))
     title = Text(logo.strip("\n"), style="bold bright_cyan")
     subtitle = Text("Offline WiFi Wordlist Generator", style="white")
     body = Text.assemble(title, "\n\n", subtitle, "\n", ("Authorized security testing use only", "dim"))
@@ -67,6 +72,8 @@ def print_header() -> None:
             body,
             border_style="cyan",
             padding=(1, 2),
+            expand=False,
+            width=panel_width,
             subtitle="v1.3.0",
             subtitle_align="right",
             title="terminal mode",
@@ -76,6 +83,8 @@ def print_header() -> None:
 
 
 def print_interactive_banner() -> None:
+    term_width = console.size.width
+    panel_width = max(44, min(94, term_width - 2))
     help_lines = (
         "- Press Enter to keep default\n"
         "- Leave text blank to skip a field\n"
@@ -87,7 +96,9 @@ def print_interactive_banner() -> None:
             help_lines,
             title="interactive wizard (-i)",
             border_style="bright_blue",
-            padding=(1, 2),
+            padding=(0, 1) if term_width < 70 else (1, 2),
+            expand=False,
+            width=panel_width,
         )
     )
 
