@@ -73,7 +73,7 @@
 
           <div class="toggles">
             <label class="checkbox-label">
-              <input type="checkbox" id="includeRouterDefaults" checked />
+              <input type="checkbox" id="includeRouterDefaults" />
               Include router / ISP default-style passwords
             </label>
 
@@ -83,13 +83,18 @@
             </label>
 
             <label class="checkbox-label">
+              <input type="checkbox" id="includeLeet" checked />
+              Include symbol/leet swaps (a->@, o->0, i->!)
+            </label>
+
+            <label class="checkbox-label">
               <input type="checkbox" id="includeRandomNumbers" checked />
               Add random numeric suffix patterns
             </label>
 
             <label>
               Random numeric count
-              <input type="number" id="randomCount" min="0" max="200" value="24" />
+              <input type="number" id="randomCount" min="0" max="600" value="48" />
               <small class="field-note">Used only when random suffix option is enabled.</small>
             </label>
           </div>

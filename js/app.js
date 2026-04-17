@@ -1,4 +1,4 @@
-import { DEFAULT_LIST_SIZE, WORKER_THRESHOLD } from "./constants.js";
+import { DEFAULT_LIST_SIZE, MAX_RANDOM_COUNT, WORKER_THRESHOLD } from "./constants.js";
 import {
   clampNumber,
   normalizedField,
@@ -27,6 +27,7 @@ const refs = {
   listSizeInput: document.getElementById("listSize"),
   includeRouterDefaults: document.getElementById("includeRouterDefaults"),
   includeYears: document.getElementById("includeYears"),
+  includeLeet: document.getElementById("includeLeet"),
   includeRandomNumbers: document.getElementById("includeRandomNumbers"),
   randomCount: document.getElementById("randomCount"),
   generateBtn: document.getElementById("generateBtn"),
@@ -55,11 +56,11 @@ function collectInput() {
   const includeRandomNumbers = refs.includeRandomNumbers.checked;
   const randomCountRaw = Number(refs.randomCount.value);
   const randomCount = includeRandomNumbers
-    ? clampNumber(Number.isFinite(randomCountRaw) ? Math.trunc(randomCountRaw) : 24, 0, 200)
+    ? clampNumber(Number.isFinite(randomCountRaw) ? Math.trunc(randomCountRaw) : 48, 0, MAX_RANDOM_COUNT)
     : 0;
 
   if (includeRandomNumbers && randomCount !== randomCountRaw) {
-    warnings.push("Random numeric count was adjusted to stay in the allowed range (0-200).");
+    warnings.push(`Random numeric count was adjusted to stay in the allowed range (0-${MAX_RANDOM_COUNT}).`);
   }
 
   const sizeInfo = sanitizeSize(refs.listSizeInput.value);
@@ -79,6 +80,7 @@ function collectInput() {
     desiredSize: sizeInfo.requestedRaw,
     includeRouterDefaults: refs.includeRouterDefaults.checked,
     includeYears: refs.includeYears.checked,
+    includeLeet: refs.includeLeet.checked,
     includeRandomNumbers,
     randomCount,
     warnings
