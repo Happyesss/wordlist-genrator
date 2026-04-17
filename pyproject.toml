@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wordlist-cli"
-version = "1.2.0"
+version = "1.2.1"
 description = "Offline WiFi wordlist generator with interactive terminal mode"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -27,4 +27,4 @@ classifiers = [
 wordlist = "wordlist_cli:main"
 
 [tool.setuptools]
-py-modules = ["wordlist_cli"]
+py-modules = ["wordlist_cli", "wordlist_cli_app", "wordlist_engine", "wordlist_utils"]

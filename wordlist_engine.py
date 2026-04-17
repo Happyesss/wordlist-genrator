@@ -32,6 +32,7 @@ DEFAULT_ROUTERS = [
     "tp-link1234", "tplink1234", "tp-link@1234", "tplink@1234"
 ]
 
+
 def add_with_forms(candidates: Set[str], base: str, include_leet: bool) -> None:
     for item in build_forms(base, include_leet=include_leet):
         candidates.add(item)
