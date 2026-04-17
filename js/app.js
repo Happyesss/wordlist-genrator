@@ -1,4 +1,4 @@
-import { DEFAULT_LIST_SIZE, MAX_RANDOM_COUNT, WORKER_THRESHOLD } from "./constants.js";
+import { DEFAULT_LIST_SIZE, MAX_RANDOM_COUNT } from "./constants.js";
 import {
   clampNumber,
   normalizedField,
@@ -36,7 +36,9 @@ const refs = {
   outputDownloadBtn: document.getElementById("outputDownloadBtn"),
   output: document.getElementById("output"),
   stats: document.getElementById("stats"),
-  warnings: document.getElementById("warnings")
+  warnings: document.getElementById("warnings"),
+  commonListsPopup: document.getElementById("commonListsPopup"),
+  closeCommonListsBtn: document.getElementById("closeCommonListsBtn")
 };
 
 let activeWorker = null;
@@ -89,9 +91,7 @@ function collectInput() {
 
 function handleGenerate() {
   const input = collectInput();
-  const sizeInfo = sanitizeSize(input.desiredSize);
-
-  if (sizeInfo.requestedSize >= WORKER_THRESHOLD && typeof Worker !== "undefined") {
+  if (typeof Worker !== "undefined") {
     runWorkerGeneration(input);
     return;
   }
@@ -128,19 +128,43 @@ function runWorkerGeneration(input) {
 
   let streamedPasswords = [];
   let initialWarnings = [...input.warnings];
+  let totalPasswords = 0;
+
+  const formatPercent = (done, total) => {
+    if (!total) return 0;
+    return Math.min(100, Math.round((done / total) * 100));
+  };
 
   worker.onmessage = (event) => {
     const { type, payload } = event.data || {};
 
     if (type === "progress") {
-      setProgress(refs, payload.message);
+      const pct = Number.isFinite(payload.percent) ? Math.round(payload.percent) : null;
+      setProgress(refs, pct === null ? payload.message : `${payload.message} (${pct}%)`);
+      return;
+    }
+
+    if (type === "meta") {
+      totalPasswords = Number(payload.totalPasswords) || 0;
+      setProgress(refs, totalPasswords > 0
+        ? `Preparing stream... 70% (0/${totalPasswords})`
+        : "Preparing stream... 70%");
       return;
     }
 
     if (type === "chunk") {
       streamedPasswords = streamedPasswords.concat(payload.passwords);
       refs.output.value = streamedPasswords.join("\n");
-      setProgress(refs, `Streaming results... ${streamedPasswords.length} passwords ready`);
+      const basePercent = 70;
+      const streamPercent = totalPasswords > 0 ? formatPercent(streamedPasswords.length, totalPasswords) : 0;
+      const overallPercent = totalPasswords > 0
+        ? Math.min(100, Math.round(basePercent + ((streamPercent / 100) * 30)))
+        : null;
+      if (overallPercent === null) {
+        setProgress(refs, `Streaming results... ${streamedPasswords.length} passwords ready`);
+      } else {
+        setProgress(refs, `Streaming results... ${overallPercent}% (${streamedPasswords.length}/${totalPasswords})`);
+      }
       return;
     }
 
@@ -151,6 +175,7 @@ function runWorkerGeneration(input) {
         warnings: [...initialWarnings, ...(payload.result.warnings || [])]
       };
 
+      setProgress(refs, "Generation complete (100%)");
       updateOutputUI(result, refs);
       setBusyState(refs, { isBusy: false, canCancel: false });
       worker.terminate();
@@ -184,8 +209,16 @@ refs.cancelBtn.addEventListener("click", () => {
   setProgress(refs, "Generation canceled by user.");
   setBusyState(refs, { isBusy: false, canCancel: false });
 });
-refs.downloadBtn.addEventListener("click", () => downloadWordlist(refs.output.value));
+if (refs.downloadBtn) {
+  refs.downloadBtn.addEventListener("click", () => downloadWordlist(refs.output.value));
+}
 refs.outputDownloadBtn.addEventListener("click", () => downloadWordlist(refs.output.value));
+
+if (refs.closeCommonListsBtn && refs.commonListsPopup) {
+  refs.closeCommonListsBtn.addEventListener("click", () => {
+    refs.commonListsPopup.classList.add("hidden");
+  });
+}
 
 window.addEventListener("load", () => {
   handleGenerate();

@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 [project.scripts]
-wordlist-cli = "wordlist_cli:main"
+wordlist = "wordlist_cli:main"
 
 [tool.setuptools]
 py-modules = ["wordlist_cli"]

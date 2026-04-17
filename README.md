@@ -91,41 +91,21 @@ CLI UI:
 - Add random numeric suffix patterns: Enables extra random numeric endings.
 - Random numeric count: Number of random suffixes to generate (0 to 200).
 
-## Running the App
-
-Because this project uses JavaScript modules and a Web Worker, use a local static server instead of opening HTML directly from file system paths.
-
-### Option A: Python
-
-```bash
-cd /path/to/ai-wordlist
-python3 -m http.server 8080
-```
-
-Open in browser:
-
-- http://localhost:8080
-
-### Option B: Node (serve)
-
-```bash
-cd /path/to/ai-wordlist
-npx serve .
-```
-
-Open the URL shown by serve.
-
 ## Offline Terminal CLI (Kali)
 
 You can install a global command directly from the repo link and run it like Cupp.
 
 Install with repo link:
 
+```bash
 pipx install "git+https://github.com/Happyesss/wordlist-genrator.git"
+```
 
 Run interactive mode:
 
-wordlist-cli -i
+```bash
+wordlist -i
+```
 
 If already installed, upgrade to latest UI build:
 
@@ -141,7 +121,9 @@ pipx install --force "git+https://github.com/Happyesss/wordlist-genrator.git@mai
 
 Show complete help:
 
-wordlist-cli -help
+```bash
+wordlist -help
+```
 
 Notes:
 

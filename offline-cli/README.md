@@ -37,7 +37,7 @@ pipx install "git+https://github.com/Happyesss/wordlist-genrator.git"
 
 Then run from any terminal path:
 
-wordlist-cli -i
+wordlist -i
 
 To upgrade to latest CLI UI later:
 
@@ -85,5 +85,5 @@ Help output includes:
 
 - For authorized security testing only.
 - Hard limit is 1,000,000 candidates.
-- Leet/symbol mutation mode is enabled by default (`a->@`, `o->0`, `i->!`).
+- Leet/symbol mutation mode is enabled by default (`a->@`, `o->0`, `i->!`, `s->$`).
 - Output defaults to `wordlist.txt` in the current directory.

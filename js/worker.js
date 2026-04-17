@@ -9,7 +9,7 @@ self.onmessage = (event) => {
   try {
     self.postMessage({
       type: "progress",
-      payload: { message: "Worker: generating candidate patterns..." }
+      payload: { message: "Worker: generating candidate patterns...", percent: 5 }
     });
 
     const result = generateWordlist(payload);
@@ -17,7 +17,17 @@ self.onmessage = (event) => {
 
     self.postMessage({
       type: "progress",
-      payload: { message: `Worker: preparing ${passwords.length} passwords for streaming...` }
+      payload: { message: "Worker: candidate generation complete.", percent: 70 }
+    });
+
+    self.postMessage({
+      type: "meta",
+      payload: { totalPasswords: passwords.length }
+    });
+
+    self.postMessage({
+      type: "progress",
+      payload: { message: `Worker: preparing ${passwords.length} passwords for streaming...`, percent: 70 }
     });
 
     for (let i = 0; i < passwords.length; i += CHUNK_SIZE) {

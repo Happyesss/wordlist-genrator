@@ -147,7 +147,7 @@ def build_interactive_config(args: argparse.Namespace) -> Dict[str, object]:
     random_count = prompt_int("Random numeric count", args.random_count, 0, 600)
     include_years = prompt_yes_no("Include year combinations (1900-2100)", args.include_years)
     include_router_defaults = prompt_yes_no("Include router default patterns", args.include_router_defaults)
-    include_leet = prompt_yes_no("Include leet/symbol swaps (a->@, o->0)", args.include_leet)
+    include_leet = prompt_yes_no("Include leet/symbol swaps (a->@, o->0, i->!, s->$)", args.include_leet)
 
     console.print(Rule("output", style="bright_blue"))
     output_default = args.output if args.output else "wordlist.txt"
@@ -190,10 +190,10 @@ def build_interactive_config(args: argparse.Namespace) -> Dict[str, object]:
 
 def build_parser() -> argparse.ArgumentParser:
     epilog = """Examples:
-  wordlist-cli -i
-  wordlist-cli --owners \"alex,rohan\" --phones \"9876543210\" --size 50000
-  wordlist-cli --owners \"admin\" --dob \"2001-01-30\" --include-random --random-count 80
-  wordlist-cli --owners \"nish\" --include-leet --size 80000
+    wordlist -i
+    wordlist --owners \"alex,rohan\" --phones \"9876543210\" --size 50000
+    wordlist --owners \"admin\" --dob \"2001-01-30\" --include-random --random-count 80
+    wordlist --owners \"nish\" --include-leet --size 80000
 
 Install from repo link (Kali):
   pipx install \"git+https://github.com/Happyesss/wordlist-genrator.git\"
@@ -205,7 +205,7 @@ Notes:
 """
 
     parser = argparse.ArgumentParser(
-        prog="wordlist-cli",
+        prog="wordlist",
         description="Offline WiFi Wordlist Generator (terminal edition)",
         formatter_class=argparse.RawTextHelpFormatter,
         epilog=epilog,
@@ -213,7 +213,7 @@ Notes:
     )
 
     parser.add_argument("-h", "--help", "-help", action="help", help="Show this complete help message and exit.")
-    parser.add_argument("--version", action="version", version="wordlist-cli 1.3.0")
+    parser.add_argument("--version", action="version", version="wordlist 1.3.0")
     parser.add_argument("-i", "--interactive", action="store_true", help="Launch Cupp-style interactive wizard UI.")
 
     profile = parser.add_argument_group("Target Profile Inputs")
@@ -239,7 +239,7 @@ Notes:
     rules.add_argument("--include-router-defaults", dest="include_router_defaults", action="store_true", help="Include router/ISP default-like passwords.")
     rules.add_argument("--no-router-defaults", dest="include_router_defaults", action="store_false", help="Disable router/ISP defaults.")
     rules.set_defaults(include_router_defaults=False)
-    rules.add_argument("--include-leet", dest="include_leet", action="store_true", help="Enable symbol swaps and leet forms (a->@, o->0, i->!).")
+    rules.add_argument("--include-leet", dest="include_leet", action="store_true", help="Enable symbol swaps and leet forms (a->@, o->0, i->!, s->$).")
     rules.add_argument("--no-leet", dest="include_leet", action="store_false", help="Disable leet/symbol substitutions.")
     rules.set_defaults(include_leet=True)
 
